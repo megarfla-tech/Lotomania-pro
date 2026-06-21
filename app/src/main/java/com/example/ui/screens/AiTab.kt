@@ -30,11 +30,10 @@ import com.example.ui.theme.*
 
 @Composable
 fun AiTab(
-    stats: List<NumberStats>,
-    lastDraw: LotomaniaDraw?,
+    allDraws: List<LotomaniaDraw>,
     aiResponse: String?,
     isLoading: Boolean,
-    onGenerateAiAnalysis: (List<NumberStats>, LotomaniaDraw?) -> Unit
+    onGenerateAiAnalysis: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -87,7 +86,7 @@ fun AiTab(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    "O modelo generativo estruturado processará as últimas ${stats.size} rodadas históricas buscando acúmulos por quadrantes, " +
+                    "O modelo generativo estruturado processará os últimos 10 concursos históricos buscando acúmulos por quadrantes, " +
                             "sequências e derivará as melhores hipóteses analíticas.",
                     color = SoftGrayText,
                     fontSize = 11.sp,
@@ -96,7 +95,7 @@ fun AiTab(
                 )
 
                 Button(
-                    onClick = { onGenerateAiAnalysis(stats, lastDraw) },
+                    onClick = { onGenerateAiAnalysis() },
                     enabled = !isLoading,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = NeonPurpleAccent,

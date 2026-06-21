@@ -106,30 +106,39 @@ class LotomaniaViewModel(application: Application) : AndroidViewModel(applicatio
         _syncMessage.value = null
     }
 
-    // Chama a API Gemini com inteligência contextual estatística atualizada
-    fun requestAiAnalysis(stats: List<NumberStats>, lastDraw: LotomaniaDraw?) {
+    // Chama a API Gemini com inteligência contextual estatística de curtíssimo prazo (últimos 10 jogos)
+    fun requestAiAnalysis(allDraws: List<LotomaniaDraw>) {
         if (_isAiLoading.value) return
         viewModelScope.launch {
             _isAiLoading.value = true
-            _aiAnalysis.value = "O Lotomania AI PRO está analisando o histórico computacionalmente..."
+            _aiAnalysis.value = "O Lotomania AI PRO está analisando as últimas 10 edições do histórico..."
             
-            val hot = stats.sortedByDescending { it.freqAbsoluta }.take(4).map { it.number }
-            val cold = stats.sortedBy { it.freqAbsoluta }.take(4).map { it.number }
-            val overdue = stats.sortedByDescending { it.atraso }.take(3)
+            val recentDraws = allDraws.take(10)
+            val lastDraw = recentDraws.firstOrNull()
+            
+            // Calcula as estatísticas focadas exclusivamente no subconjunto dos últimos 10 concursos
+            val statisticsOfLast10 = StatsEngine.calculateStats(recentDraws)
+            
+            val hot = statisticsOfLast10.sortedByDescending { it.freqAbsoluta }.take(4).map { it.number }
+            val cold = statisticsOfLast10.sortedBy { it.freqAbsoluta }.take(4).map { it.number }
+            val overdue = statisticsOfLast10.sortedByDescending { it.atraso }.take(3)
             
             val prompt = """
-                Último Concurso Analisado: ${lastDraw?.concurso ?: "Nenhum"} (Data: ${lastDraw?.data ?: "Nenhum"}).
-                Números mais frequentes gerais (Quentes): ${hot.joinToString(", ")}.
-                Números menos frequentes históricos (Frios): ${cold.joinToString(", ")}.
-                Maior Atraso registrado no momento: 
-                - Número ${overdue.getOrNull(0)?.number} (Atrasado há ${overdue.getOrNull(0)?.atraso} rodadas)
-                - Número ${overdue.getOrNull(1)?.number} (Atrasado há ${overdue.getOrNull(1)?.atraso} rodadas).
+                Análise com foco nos últimos 10 concursos da Lotomania (amostra recente de curtíssimo prazo).
+                Último Concurso Analisado como âncora: Concurso ${lastDraw?.concurso ?: "Nenhum"} (Sorteado em: ${lastDraw?.data ?: "Nenhum"}).
                 
-                Gere uma análise explicada contendo:
-                1. Mudanças de comportamento ou tendências recentes.
-                2. Um alerta de anomalia estatística (ex: acúmulos por quadrantes ou desvio de paridade).
-                3. Sugestão estratégica inteligente explicada para o próximo sorteio.
-                Mantenha linguagem simples, polida, profissional e direta ao ponto.
+                Métricas calculadas exclusivamente com base nesses últimos 10 jogos:
+                - Dezenas Mais Frequentes Recentes (Quentes na Amostra): ${hot.joinToString(", ")}.
+                - Dezenas Menos Frequentes Recentes (Frias na Amostra): ${cold.joinToString(", ")}.
+                - Maior Atraso relativo à amostra de 10 jogos: 
+                  * Número ${overdue.getOrNull(0)?.number} (Atrasado há ${overdue.getOrNull(0)?.atraso} rodadas)
+                  * Número ${overdue.getOrNull(1)?.number} (Atrasado há ${overdue.getOrNull(1)?.atraso} rodadas).
+                
+                Gere um Relatório Diagnóstico condensado contendo:
+                1. Mudanças de comportamento ou tendências de recorrência observadas rigorosamente nestes 10 últimos sorteios.
+                2. Um alerta de anomalia estatística recente detectado nesse subconjunto (como acúmulos por quadrante, paridades ou décadas).
+                3. Uma sugestão estratégica explicada inteligente baseada nessa volatilidade de curtíssimo prazo.
+                Mantenha linguagem polida, profissional, objetiva e direta ao ponto.
             """.trimIndent()
 
             val response = GeminiClient.generateAnalysis(prompt)
@@ -139,10 +148,16 @@ class LotomaniaViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     // Gera novos jogos matemáticos
-    fun generateSelectedGames(mode: GeneratorMode, count: Int, stats: List<NumberStats>, lastDraw: LotomaniaDraw?) {
+    fun generateSelectedGames(
+        mode: GeneratorMode, 
+        count: Int, 
+        stats: List<NumberStats>, 
+        lastDraw: LotomaniaDraw?,
+        allDraws: List<LotomaniaDraw> = emptyList()
+    ) {
         _lastUsedMode.value = mode
         val lastDezenas = lastDraw?.dezenas ?: emptyList()
-        val results = GameGenerator.generateGames(mode, count, stats, lastDezenas)
+        val results = GameGenerator.generateGames(mode, count, stats, lastDezenas, allDraws)
         _generatedGames.value = results
     }
 

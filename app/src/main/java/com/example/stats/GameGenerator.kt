@@ -1,5 +1,6 @@
 package com.example.stats
 
+import com.example.db.LotomaniaDraw
 import java.util.Random
 
 enum class GeneratorMode(val label: String, val desc: String) {
@@ -13,7 +14,8 @@ enum class GeneratorMode(val label: String, val desc: String) {
     COLD_ONLY("Modo Números Frios", "Focado apenas nas dezenas mais raras ou atrasadas (Frias)."),
     HOT_ONLY("Modo Números Quentes", "Prioriza as dezenas que mais saem frequentemente (Quentes)."),
     MIXED("Modo Misto", "Mescla equilibrada contendo 50% de números quentes e 50% de frios."),
-    ANTI_REPETITION("Modo Anti-Repetição", "Exclui totalmente as 20 dezenas do último concurso sorteado.")
+    ANTI_REPETITION("Modo Anti-Repetição", "Exclui totalmente as 20 dezenas do último concurso sorteado."),
+    PROBABILITY_10("Probabilidade 10 Concursos", "Sugere dezenas baseadas prioritariamente nas intensidades probabilísticas recentes do Módulo.")
 }
 
 object GameGenerator {
@@ -25,7 +27,8 @@ object GameGenerator {
         mode: GeneratorMode,
         count: Int,
         stats: List<NumberStats>,
-        lastDrawDezenas: List<Int>
+        lastDrawDezenas: List<Int>,
+        allDraws: List<LotomaniaDraw> = emptyList()
     ): List<List<Int>> {
         val games = mutableListOf<List<Int>>()
         val random = Random()
@@ -144,6 +147,22 @@ object GameGenerator {
                     val parentPool = (0..99).filter { it !in banned }
                     while (gameSet.size < 50) {
                         gameSet.add(parentPool[random.nextInt(parentPool.size)])
+                    }
+                }
+
+                GeneratorMode.PROBABILITY_10 -> {
+                    // Seleciona a pontuação de maior tendência dos últimos 10 concursos
+                    val trendPr = ProbabilityEngine.calculateTrendProbability(allDraws)
+                    val pool = trendPr.sortedByDescending { it.trendScore }.map { it.number }
+                    // Mantém as 38 melhores de forma fixa e as outras 12 são formadas de forma rotativa da piscina restante do top-60
+                    val fixedCount = 38
+                    gameSet.addAll(pool.take(fixedCount))
+                    val candidates = pool.drop(fixedCount).take(22) // pega os próximos que são fortes
+                    while (gameSet.size < 50 && candidates.isNotEmpty()) {
+                        gameSet.add(candidates[random.nextInt(candidates.size)])
+                    }
+                    while (gameSet.size < 50) {
+                        gameSet.add(random.nextInt(100))
                     }
                 }
             }

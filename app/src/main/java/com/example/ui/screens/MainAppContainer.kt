@@ -180,12 +180,11 @@ fun MainAppContainer(viewModel: LotomaniaViewModel) {
                         )
 
                         2 -> AiTab(
-                            stats = state.stats,
-                            lastDraw = state.draws.firstOrNull(),
+                            allDraws = state.draws,
                             aiResponse = aiResponse,
                             isLoading = isAiLoading,
-                            onGenerateAiAnalysis = { actStats, actDraw ->
-                                viewModel.requestAiAnalysis(actStats, actDraw)
+                            onGenerateAiAnalysis = {
+                                viewModel.requestAiAnalysis(state.draws)
                             }
                         )
 
@@ -218,6 +217,11 @@ fun MainAppContainer(viewModel: LotomaniaViewModel) {
                                         onClick = { toolSubTab = 2 },
                                         text = { Text("Comparador", fontSize = 12.sp) }
                                     )
+                                    Tab(
+                                        selected = toolSubTab == 3,
+                                        onClick = { toolSubTab = 3 },
+                                        text = { Text("Probabilidade", fontSize = 12.sp) }
+                                    )
                                 }
 
                                 when (toolSubTab) {
@@ -227,7 +231,7 @@ fun MainAppContainer(viewModel: LotomaniaViewModel) {
                                         generatedGames = generatedGames,
                                         lastUsedMode = lastUsedMode,
                                         onGenerateGames = { mode, q, st, lD ->
-                                            viewModel.generateSelectedGames(mode, q, st, lD)
+                                            viewModel.generateSelectedGames(mode, q, st, lD, state.draws)
                                         },
                                         onClearGames = { viewModel.clearGeneratedGames() }
                                     )
@@ -236,6 +240,9 @@ fun MainAppContainer(viewModel: LotomaniaViewModel) {
                                         generatedGames = generatedGames
                                     )
                                     2 -> ComparatorTab(
+                                        draws = state.draws
+                                    )
+                                    3 -> ProbabilityTab(
                                         draws = state.draws
                                     )
                                 }
