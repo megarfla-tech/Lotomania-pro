@@ -26,19 +26,13 @@ jobs:
         distribution: 'zulu'
         cache: gradle
 
-    - name: Validate Gradle Wrapper
-      uses: gradle/wrapper-validation-action@v1
-
-    - name: Grant Execute Permission to Gradle
-      run: chmod +x gradlew
-
     - name: Create Mock Environment Secrets
       run: |
         echo "GEMINI_API_KEY=MY_GEMINI_API_KEY" > .env
         echo "API_INTEGRATION_URL=https://api.example.com" >> .env
 
     - name: Build Debug App Variant
-      run: ./gradlew assembleDebug --no-daemon
+      run: gradle assembleDebug --no-daemon
 
     - name: Archiving Compiled Binary Artifacts
       uses: actions/upload-artifact@v3

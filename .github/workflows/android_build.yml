@@ -57,11 +57,11 @@ jobs:
       run: |
         if [ "${{ steps.decode_keystore.outputs.has_keystore }}" = "true" ]; then
           echo "Building signed Release APK..."
-          ./gradlew assembleRelease --no-daemon
+          gradle assembleRelease --no-daemon
         else
           echo "Building standard Debug APK & Unsigned/Self-Signed Release APK..."
           # Build both to ensure code compilation check passes
-          ./gradlew assembleDebug --no-daemon
+          gradle assembleDebug --no-daemon
         fi
 
     - name: Upload Debug APK Artifact
