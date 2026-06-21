@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.sp
 import com.example.db.LotomaniaDraw
 import com.example.stats.DezenaProbability
 import com.example.stats.ProbabilityEngine
+import com.example.ui.components.RechartsStyledBarChart
+import com.example.ui.components.RechartsStyledHeatmap
 import com.example.ui.theme.*
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -119,6 +121,16 @@ fun ProbabilityTab(
                     )
                 }
             }
+        }
+
+        // Gráfico de Frequência Recente Recharts-Style
+        item {
+            RechartsStyledBarChart(probabilityData = probabilityData)
+        }
+
+        // Mapa de Calor Recharts-Style
+        item {
+            RechartsStyledHeatmap(probabilityData = probabilityData)
         }
 
         // 2. Quadro de Dezenas (Matriz 10x10 Compacta e Elegante)
