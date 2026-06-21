@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Lotomania AI PRO</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_stats">Estatísticas</string>
+    <string name="title_generator">Gerador de Jogos</string>
+    <string name="title_simulator">Simulador</string>
+    <string name="title_comparator">Comparador</string>
+    <string name="title_history">Histórico</string>
+    <string name="title_ai_analytica">Análise de IA</string>
+    <string name="disclaimer_prediction">AVISO: As análises e estimativas são geradas por algoritmos estatísticos e IA com base em dados históricos. A Lotomania é um jogo de azar em que todos os números possuem chance igual em cada sorteio; não há qualquer garantia ou promessa de lucros ou aumento real de probabilidade.</string>
+</resources>

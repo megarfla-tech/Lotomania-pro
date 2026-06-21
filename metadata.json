@@ -1,0 +1,6 @@
+{
+  "name": "Lotomania AI PRO",
+  "description": "Sistema premium de análise estatística e previsão inteligente de Lotomania utilizando Inteligência Artificial e Machine Learning Heurístico.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
